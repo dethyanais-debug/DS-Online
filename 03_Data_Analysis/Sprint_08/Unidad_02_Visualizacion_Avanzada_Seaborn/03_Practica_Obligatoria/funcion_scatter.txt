@@ -1,0 +1,90 @@
+
+def scatter_plot_with_controls(df, x_col, y_col, color_col= None, size_col = "", scale= 1, legend= True):
+
+    fig, ax = plt.subplots(figsize = (20,10)) # Cuando creas 1 sólo gráfico no hace falta poner 1,1
+    # Creamos el scatter en función de los argumentos de entrada
+    sizes = (10,1000)
+
+    if type(size_col) == str:
+        if size_col != "": # Si el argumento size es un str consideramos que es una de las columnas del dataframe
+            if color_col: # Ahora comprobamos que realmente haya columna de color
+                scatter = sns.scatterplot(data = df,
+                                          x = x_col,
+                                          y = y_col, 
+                                          hue = color_col,
+                                          size = df[size_col] * scale,
+                                          palette = "mako",
+                                          alpha = 0.5, 
+                                          ax = ax, 
+                                          sizes = sizes,
+                                          )
+                
+            else: # No hay columna de color, así que no lo pasamos como argumento y dejamos que lo escoja el método
+                scatter = sns.scatterplot(x = x_col, 
+                                          y = y_col, 
+                                          size = df[size_col] * scale, 
+                                          data = df, 
+                                          alpha = 0.5, 
+                                          ax = ax, 
+                                          sizes = sizes,)
+        elif color_col: # Si hay categoria de color y además datos de tamaño que no son una columna
+            scatter = sns.scatterplot(x = x_col, 
+                                      y = y_col, 
+                                      data = df, 
+                                      hue = color_col, 
+                                      alpha=0.5, 
+                                      palette='viridis', 
+                                      ax = ax, 
+                                      sizes = sizes) # Ojo no aplicamos la escala
+    else:
+        scatter = sns.scatterplot(x = x_col, 
+                                  y = y_col, 
+                                  size = size_col, 
+                                  data = df, 
+                                  alpha= 0.5, 
+                                  palette='viridis', 
+                                  ax = ax, 
+                                  sizes = sizes,) # Ojo no aplicamos la escala, ni el color
+    # Labels
+
+    if legend:
+        ax.legend(ncol = 2, loc="upper right", frameon = False, labelspacing = 2)
+        
+    ax.set_xlabel(x_col)
+    ax.set_ylabel(y_col)
+
+    return ax
+
+
+def scatter_plot_with_controls_extra(df, x_col, y_col,color_col = None, size_col = "", scale=1, legend = "cuadro"):
+    plt.figure(figsize = (20,10)) # Cuando creas 1 sólo gráfico no hace falta poner 1,1
+    ax = plt.gca()
+        
+    # Creamos el scatter en función de los argumentos de entrada
+    if type(size_col) == str: # So 
+        if size_col != "": # Si el argumento size es un str consideramos que es una de las columnas del dataframe
+            if color_col: # Ahora comprobamos que realmente haya columna de color
+                scatter = plt.scatter(df[x_col], df[y_col], s=df[size_col] * scale, c=df[color_col], alpha=0.5, cmap='coolwarm')
+            else: # No hay columna de color, así que no lo pasamos como argumento y dejamos que lo escoja el método
+                scatter = plt.scatter(df[x_col], df[y_col], alpha=0.5, cmap='viridis') 
+        elif color_col: # Si hay categoria de color y además datos de tamaño que no son una columna
+            scatter = plt.scatter(df[x_col], df[y_col], s= size_col, c=df[color_col], alpha=0.5, cmap='viridis') # Ojo no aplicamos la escala
+        else:
+            scatter = plt.scatter(df[x_col], df[y_col], s= size_col, alpha=0.5, cmap='viridis') # Ojo no aplicamos la escala, ni el color
+    # Labels
+    plt.xlabel(x_col)
+    plt.ylabel(y_col)
+
+    # Legend
+    if legend == "cuadrado":
+        legend1 = ax.legend(*scatter.legend_elements("sizes", num=3), ncol = 3, loc="upper right", title=size_col, title_fontsize = "small", frameon = False, labelspacing = 1.5 ) # Esto es quizás lo más complejo de ver, o de encontrar, lo primero es capturar el artist o dibujo de cada esfera para usarlo como dibujo en la leyenda.
+        ax.add_artist(legend1)
+        legend2 = ax.legend(*scatter.legend_elements("colors", num=3), ncol = 3, loc="upper left", title=color_col, title_fontsize = "small", frameon = False, labelspacing = 0.5 ) # Esto es quizás lo más complejo de ver, o de encontrar, lo primero es capturar el artist o dibujo de cada esfera para usarlo como dibujo en la leyenda.
+        ax.add_artist(legend2)
+    else:
+        legend1 = ax.legend(*scatter.legend_elements("sizes", num=6), ncol = 3, loc="upper right", title=size_col, title_fontsize = "small", frameon = False, labelspacing = 1.5 ) # Esto es quizás lo más complejo de ver, o de encontrar, lo primero es capturar el artist o dibujo de cada esfera para usarlo como dibujo en la leyenda.
+        ax.add_artist(legend1)
+        plt.colorbar(label='log$_{10}$(population)') # Podemos meter latex
+        plt.clim(0, 7)
+
+    return ax
